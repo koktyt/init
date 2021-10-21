@@ -52,4 +52,4 @@ layout_card.setSpacing(5) # пробелы между содержимым
  
 window.setLayout(layout_card)
 window.show()
-app.exec()
+app.exec() 
