@@ -1,11 +1,23 @@
+from random import shuffle
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
-        QApplication, QWidget, 
-        QHBoxLayout, QVBoxLayout, 
-        QGroupBox, QButtonGroup, QRadioButton,  
-        QPushButton, QLabel)
+from PyQt5.QtWidgets import(
+QApplication, QWidget, 
+QHBoxLayout, QVBoxLayout, 
+QGroupBox, QButtonGroup, QRadioButton,  
+QPushButton, QLabel)
+
+window.setWindowTitle('Memo Card')
+
+class Question():
+    def __init__(self, question, right_answer, wrong1, wrong2, wrong3):
+        self.question=question
+        self.right_answer=right_answer
+        self.wrong1=wrong1
+        self.wrong2=wrong2
+        self.wrong3=wrong3
  
 app = QApplication([])
+window=QWidget()
  
 btn_OK = QPushButton('Ответить') 
 lb_Question = QLabel('Самый сложный вопрос в мире!') 
@@ -69,7 +81,15 @@ layout_card.setSpacing(5) # пробелы между содержимым
 # ----------------------------------------------------------
 # Виджеты и макеты созданы, далее - функции:
 # ----------------------------------------------------------
- 
+
+window.question = -1
+def next_question():
+    window.question+=1
+    if window.question >= len(quetion_list):
+        window.question=0
+    q=question_list[window.qwestion]
+    ask(q)
+
 def show_result():
     ''' показать панель ответов '''
     RadioGroupBox.hide()
@@ -88,17 +108,42 @@ def show_question():
     rbtn_4.setChecked(False)
     RadioGroup.setExclusive(True) # вернули ограничения, теперь только одна радиокнопка может быть выбрана
  
+#https://github.com/hypnotic322/memory_card
+answers=[rbtn_1, rbtn_2, rbtn_3, rbtn_4]
+
+def ask(q: Question):
+    shuffle(answers)
+    answers[0].setTexst(q.right_answer)
+    answers[1].setTexst(q.wrong1)
+    answers[2].setTexst(q.wrong2)
+    answers[3].setTexst(q.wrong3)
+    lb_Question.setText(q.question)
+    lb_Correct.setText(q.right_answer)
+    show_question()
+
+def chow_correct(res):
+    lb_Result.setText(res)
+    show_result()
+
 def test():
-    ''' временная функция, которая позволяет нажатием на кнопку вызывать по очереди
-    show_result() либо show_question() '''
-    if 'Ответить' == btn_OK.text():
-        show_result()
+    if answers[0].isCrecked():
+        show_correct('Верно!')
+    elif answers[1].isCrecked or answers[2].isCrecked or answers[3].isCrecked:
+        show_correct('Неверно!')
+
+def click_OK():
+    if btn_OK.text()=='Ответить':
+        test()
     else:
-        show_question()
- 
-window = QWidget()
+        next_question()
+
+q=Question('Государственный язык Бразилии', 'Португальский', 'Бразильский', 'Испанский', 'Итольянский')
+question_list=[]
+question_list.append(q)
+question_list.append(Question('1000-7', '993', '998', '4', '21'))
+window.question=-1
+next_question()
+btn_OK.clicked.connect(click_OK) # проверяем, что панель ответов показывается при нажатии на кнопку
 window.setLayout(layout_card)
-window.setWindowTitle('Memo Card')
-btn_OK.clicked.connect(test) # проверяем, что панель ответов показывается при нажатии на кнопку
 window.show()
-app.exec()
+app.exec_()
